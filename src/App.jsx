@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import "./App.css";
 import { Movies } from "./components/Movies";
-import results from "./mocks/results.json";
-import { useParams } from "react-router-dom";
 import { searchMovies } from "./services/movies";
 
 function useSearch() {
@@ -32,10 +30,7 @@ function useSearch() {
   return { search, updateSearch, error };
 }
 
-function useMovies() {}
-
-function App() {
-  const { search, updateSearch } = useSearch();
+function useMovies({ search }) {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -55,6 +50,13 @@ function App() {
       setLoading(false);
     }
   }, [search]);
+
+  return { movies, loading, error, getMovies };
+}
+
+function App() {
+  const { search, updateSearch } = useSearch();
+  const { movies, loading, error, getMovies } = useMovies({ search });
 
   const handleSubmit = (event) => {
     event.preventDefault();
