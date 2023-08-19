@@ -1,6 +1,10 @@
 import "./App.css";
+import { Movies } from "./components/Movies";
+import results from "./mocks/results.json";
 
 function App() {
+  const movies = results.Search;
+
   return (
     <div className="page">
       <header>
@@ -15,9 +19,11 @@ function App() {
             Buscar
           </button>
         </form>
-
-        <main>Lista de peliculas</main>
       </header>
+
+      <main>
+        <Movies movies={movies} />
+      </main>
     </div>
   );
 }
