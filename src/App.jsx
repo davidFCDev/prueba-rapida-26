@@ -1,7 +1,9 @@
-import { useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import "./App.css";
 import { Movies } from "./components/Movies";
 import results from "./mocks/results.json";
+import { useParams } from "react-router-dom";
+import { searchMovies } from "./services/movies";
 
 function useSearch() {
   const [search, updateSearch] = useState("");
@@ -33,12 +35,30 @@ function useSearch() {
 function useMovies() {}
 
 function App() {
-  const { search, updateSearch, error } = useSearch();
+  const { search, updateSearch } = useSearch();
   const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const previousSearch = useRef(search);
+
+  const getMovies = useCallback(async () => {
+    if (search === previousSearch.current) return;
+    try {
+      setLoading(true);
+      setError(null);
+      previousSearch.current = search;
+      const movies = await searchMovies({ search });
+      setMovies(movies);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [search]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log("submit");
+    getMovies({ search });
   };
 
   const handleChange = (event) => {
@@ -65,9 +85,7 @@ function App() {
         {error && <p style={{ color: "red" }}>{error}</p>}
       </header>
 
-      <main>
-        <Movies movies={mappedMovies} />
-      </main>
+      <main>{loading ? <p>loading...</p> : <Movies movies={movies} />}</main>
     </div>
   );
 }
